@@ -25,14 +25,14 @@ export interface SelectOption {
     name: string;
 }
 
-interface Props {
+export interface Props {
     accounts: SelectOption[];
     categories: SelectOption[];
     currency: string;
 }
 
 /** Mirrors the `Transaction` model in schema.prisma (plus a transfer destination). */
-interface NewEntryPayload {
+export interface NewEntryPayload {
     type: TransactionType;
     title: string;
     amount: number;
