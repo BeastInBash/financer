@@ -1,23 +1,37 @@
-import { NewEntryForm, type SelectOption } from "./_components/new-entry-form";
+import { redirect } from "next/navigation";
+import { prisma } from "@/app/lib/db";
+import { getDbUser } from "@/app/lib/helper/auth";
+import { NewEntryForm } from "./_components/new-entry-form";
 
-// Static option lists for now — swap these for DB-backed accounts/categories
-// once the API exists. The form's console payload already uses these IDs.
-const ACCOUNTS: SelectOption[] = [
-    { id: "acc_operating", name: "Operating · Bank" },
-    { id: "acc_reserve", name: "Reserve · Investment" },
-    { id: "acc_corporate", name: "Corporate Card · Credit" },
-    { id: "acc_petty", name: "Petty Cash · Cash" },
-];
+// Always reflect the latest accounts/categories (they can be created inline).
+export const dynamic = "force-dynamic";
 
-const CATEGORIES: SelectOption[] = [
-    { id: "cat_leases", name: "Operating Leases" },
-    { id: "cat_saas", name: "SaaS & Licenses" },
-    { id: "cat_payroll", name: "Payroll" },
-    { id: "cat_logistics", name: "Logistics" },
-    { id: "cat_utilities", name: "Utilities" },
-    { id: "cat_revenue", name: "Revenue" },
-];
+export default async function NewEntryPage() {
+    const { clerkId, user } = await getDbUser();
+    if (!clerkId) redirect("/sign-in?redirect_url=/entry/new");
+    if (!user) {
+        // Signed in but the Clerk webhook hasn't created the DB row yet.
+        return (
+            <div className="grid min-h-screen place-items-center p-6">
+                <p className="max-w-sm text-center font-mono text-[12px] uppercase tracking-[0.06em] text-on-surface-variant">
+                    Your account is still being set up. Refresh in a moment.
+                </p>
+            </div>
+        );
+    }
 
-export default function NewEntryPage() {
-    return <NewEntryForm accounts={ACCOUNTS} categories={CATEGORIES} currency="USD" />;
+    const [accounts, categories] = await Promise.all([
+        prisma.account.findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: "asc" },
+            select: { id: true, name: true },
+        }),
+        prisma.category.findMany({
+            where: { userId: user.id },
+            orderBy: { name: "asc" },
+            select: { id: true, name: true },
+        }),
+    ]);
+
+    return <NewEntryForm accounts={accounts} categories={categories} currency={user.currency} />;
 }

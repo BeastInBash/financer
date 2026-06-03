@@ -25,12 +25,6 @@ function pctChange(current: number, previous: number): number | null {
     return (current - previous) / previous;
 }
 
-/**
- * Resolve the dashboard view-model for the signed-in user. Always returns a
- * fully-populated, serializable object: on any failure (no DB configured, user
- * not yet synced, query error) it degrades to the demo dataset instead of
- * throwing, so the route can never 500 on a transient data issue.
- */
 export async function getDashboardData(): Promise<DashboardData> {
     try {
         const { userId: clerkId } = await auth();
@@ -40,8 +34,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         if (!user) return sampleDashboardData();
 
         const data = await loadDashboardData(user);
-        // An account with zero activity has nothing to render — show the demo
-        // so the experience isn't a wall of empty states on first sign-in.
+
         return data.accounts.length === 0 && data.transactions.length === 0
             ? sampleDashboardData()
             : data;

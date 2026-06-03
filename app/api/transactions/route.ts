@@ -3,14 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
 import { TransactionType } from "@/app/generated/prisma/enums";
 
-const MAX_RECEIPT_BYTES = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_RECEIPT_TYPES = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "application/pdf",
-];
-
 interface NewEntryData {
     type: TransactionType;
     title: string;
@@ -21,6 +13,8 @@ interface NewEntryData {
     transactionDate: string;
     notes: string | null;
     tags: string[];
+    // Already-uploaded receipt URL (the browser uploads to ImageKit before this call).
+    receiptUrl: string | null;
 }
 
 function badRequest(message: string) {
@@ -66,6 +60,14 @@ function validate(raw: unknown): { ok: true; data: NewEntryData } | { ok: false;
         ? b.tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim())
         : [];
 
+    let receiptUrl: string | null = null;
+    if (b.receiptUrl != null) {
+        if (typeof b.receiptUrl !== "string" || !/^https?:\/\//.test(b.receiptUrl)) {
+            return { ok: false, error: "Invalid receipt URL" };
+        }
+        receiptUrl = b.receiptUrl;
+    }
+
     return {
         ok: true,
         data: {
@@ -80,6 +82,7 @@ function validate(raw: unknown): { ok: true; data: NewEntryData } | { ok: false;
             transactionDate: transactionDate.toISOString(),
             notes: typeof b.notes === "string" && b.notes.trim() ? b.notes.trim() : null,
             tags,
+            receiptUrl,
         },
     };
 }
@@ -93,37 +96,18 @@ export const POST = async (req: NextRequest) => {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        let form: FormData;
-        try {
-            form = await req.formData();
-        } catch {
-            return badRequest("Expected multipart/form-data");
-        }
-
-        const rawData = form.get("data");
-        if (typeof rawData !== "string") return badRequest("Missing 'data' part");
-
+        // 2. Parse the JSON body. The receipt was already uploaded to ImageKit
+        //    client-side, so only its URL arrives here (in `receiptUrl`).
         let parsed: unknown;
         try {
-            parsed = JSON.parse(rawData);
+            parsed = await req.json();
         } catch {
-            return badRequest("'data' part is not valid JSON");
+            return badRequest("Body must be JSON");
         }
 
         const result = validate(parsed);
         if (!result.ok) return badRequest(result.error);
         const data = result.data;
-
-      
-        const receipt = form.get("receipt");
-        if (receipt instanceof File) {
-            if (receipt.size > MAX_RECEIPT_BYTES) return badRequest("Receipt exceeds 5 MB");
-            if (!ALLOWED_RECEIPT_TYPES.includes(receipt.type)) {
-                return badRequest("Receipt must be a JPEG, PNG, WebP, or PDF");
-            }
-        }
-        // Before this implement image kit or cloudinary to store the image / pdf 
-        const receiptUrl: string | null = null; // TODO: upload `receipt` to storage, store URL
 
         // 4. Resolve our internal user (Transaction.userId is User.id, not the Clerk id).
         const user = await prisma.user.findUnique({
@@ -180,7 +164,7 @@ export const POST = async (req: NextRequest) => {
                         amount: data.amount,
                         type: TransactionType.TRANSFER,
                         transactionDate: new Date(data.transactionDate),
-                        receiptUrl,
+                        receiptUrl: data.receiptUrl,
                         tags: tagsCreate,
                     },
                 });
@@ -216,7 +200,7 @@ export const POST = async (req: NextRequest) => {
                     amount: data.amount,
                     type: data.type,
                     transactionDate: new Date(data.transactionDate),
-                    receiptUrl,
+                    receiptUrl: data.receiptUrl,
                     tags: tagsCreate,
                 },
             });

@@ -2,20 +2,26 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
+    AlertTriangle,
     ArrowDownLeft,
     ArrowLeft,
     ArrowLeftRight,
     ArrowUpRight,
     Check,
     ChevronDown,
+    Loader2,
     X,
     type LucideIcon,
 } from "lucide-react";
 import { TransactionType } from "@/app/generated/prisma/enums";
 import { Card, CardHeader } from "@/app/dashboard/_components/card";
 import { Reveal } from "@/app/dashboard/_components/motion-primitives";
+import { createNewTransaction } from "@/app/lib/services/transactions";
+import { CreateAccountControl, CreateCategoryControl } from "./inline-create";
 import { ReceiptUpload } from "./receipt-upload";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -76,6 +82,24 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
     const [errors, setErrors] = useState<Errors>({});
     const [submitted, setSubmitted] = useState<NewEntryPayload | null>(null);
 
+    const router = useRouter();
+    const mutation = useMutation({
+        mutationFn: createNewTransaction,
+        onSuccess: (_result, payload) => {
+            setSubmitted(payload);
+            // Reset per-entry fields, keep type/account/date for fast repeat entry.
+            setTitle("");
+            setAmount("");
+            setNotes("");
+            setTags("");
+            setReceipt(null);
+            setCategoryId("");
+            setErrors({});
+            // Refresh server components (dashboard balances/lists) with the new row.
+            router.refresh();
+        },
+    });
+
     const isTransfer = type === TransactionType.TRANSFER;
 
     function clearError(key: FieldKey) {
@@ -120,18 +144,9 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                 .filter(Boolean),
         };
 
-        // No API yet — surface the exact shape an endpoint would receive.
-        console.log("[new-entry] submit payload →", payload);
-        setSubmitted(payload);
-
-        // Reset the per-entry fields, keep type/account/date for fast repeat entry.
-        setTitle("");
-        setAmount("");
-        setNotes("");
-        setTags("");
-        setReceipt(null);
-        setCategoryId("");
-        setErrors({});
+        // Uploads the receipt to ImageKit (if any), then POSTs the transaction.
+        // Field reset + dashboard refresh happen in the mutation's onSuccess.
+        mutation.mutate(payload);
     }
 
     const amountTone = isTransfer
@@ -168,6 +183,13 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                             payload={submitted}
                             reduce={!!reduce}
                             onDismiss={() => setSubmitted(null)}
+                        />
+                    )}
+                    {mutation.isError && (
+                        <ErrorBanner
+                            message={mutation.error.message}
+                            reduce={!!reduce}
+                            onDismiss={() => mutation.reset()}
                         />
                     )}
                 </AnimatePresence>
@@ -261,13 +283,29 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                                         id="account"
                                         value={accountId}
                                         invalid={!!errors.accountId}
-                                        placeholder="Select account"
+                                        placeholder={accounts.length ? "Select account" : "No accounts yet"}
                                         options={accounts}
                                         onChange={(v) => {
                                             setAccountId(v);
                                             clearError("accountId");
                                         }}
                                     />
+                                    <div className="mt-2 flex items-center justify-between gap-2">
+                                        {accounts.length === 0 && (
+                                            <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-outline">
+                                                Add one to get started
+                                            </span>
+                                        )}
+                                        <div className="ml-auto">
+                                            <CreateAccountControl
+                                                currency={currency}
+                                                onCreated={(id) => {
+                                                    setAccountId(id);
+                                                    clearError("accountId");
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                 </Field>
 
                                 <AnimatePresence mode="wait" initial={false}>
@@ -301,6 +339,11 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                                                     options={categories}
                                                     onChange={setCategoryId}
                                                 />
+                                                <div className="mt-2 flex justify-end">
+                                                    <CreateCategoryControl
+                                                        onCreated={(id) => setCategoryId(id)}
+                                                    />
+                                                </div>
                                             </Field>
                                         </SlotMotion>
                                     )}
@@ -355,7 +398,11 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                             {/* Footer */}
                             <div className="flex flex-col-reverse items-stretch gap-3 border-t border-outline-variant pt-5 sm:flex-row sm:items-center sm:justify-between">
                                 <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-outline">
-                                    Demo · logs to console, no network call
+                                    {mutation.isPending
+                                        ? receipt
+                                            ? "Uploading receipt…"
+                                            : "Saving entry…"
+                                        : "Saved to your ledger"}
                                 </span>
                                 <div className="flex items-center gap-3">
                                     <Link
@@ -366,12 +413,22 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                                     </Link>
                                     <motion.button
                                         type="submit"
-                                        whileHover={reduce ? undefined : { y: -2 }}
-                                        whileTap={reduce ? undefined : { scale: 0.98, y: 0 }}
-                                        className="inline-flex h-11 flex-1 items-center justify-center gap-2 bg-ink px-6 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors hover:bg-accent sm:flex-none"
+                                        disabled={mutation.isPending}
+                                        whileHover={reduce || mutation.isPending ? undefined : { y: -2 }}
+                                        whileTap={reduce || mutation.isPending ? undefined : { scale: 0.98, y: 0 }}
+                                        className="inline-flex h-11 flex-1 items-center justify-center gap-2 bg-ink px-6 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-ink sm:flex-none"
                                     >
-                                        <Check size={15} strokeWidth={2.5} />
-                                        Save Entry
+                                        {mutation.isPending ? (
+                                            <>
+                                                <Loader2 size={15} strokeWidth={2.5} className="animate-spin" />
+                                                Saving
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Check size={15} strokeWidth={2.5} />
+                                                Save Entry
+                                            </>
+                                        )}
                                     </motion.button>
                                 </div>
                             </div>
@@ -563,7 +620,7 @@ function SuccessBanner({
             <div className="flex items-center justify-between gap-3 border-b border-outline-variant bg-ink px-4 py-2.5 text-white">
                 <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em]">
                     <Check size={14} strokeWidth={2.5} className="text-accent" />
-                    Entry captured · logged to console
+                    Entry saved
                 </span>
                 <button
                     type="button"
@@ -577,6 +634,48 @@ function SuccessBanner({
             <pre className="overflow-x-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-on-surface-variant">
                 {JSON.stringify(preview, null, 2)}
             </pre>
+        </motion.div>
+    );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Error banner                                                       */
+/* ------------------------------------------------------------------ */
+
+function ErrorBanner({
+    message,
+    onDismiss,
+    reduce,
+}: {
+    message: string;
+    onDismiss: () => void;
+    reduce: boolean;
+}) {
+    return (
+        <motion.div
+            initial={reduce ? false : { opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="mb-4 border border-[#ba1a1a] bg-background"
+        >
+            <div className="flex items-center justify-between gap-3 bg-[#ba1a1a] px-4 py-2.5 text-white">
+                <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em]">
+                    <AlertTriangle size={14} strokeWidth={2.5} />
+                    Could not save entry
+                </span>
+                <button
+                    type="button"
+                    onClick={onDismiss}
+                    aria-label="Dismiss"
+                    className="text-white/70 transition-colors hover:text-white"
+                >
+                    <X size={15} strokeWidth={2} />
+                </button>
+            </div>
+            <p className="px-4 py-3 font-mono text-[12px] leading-relaxed text-on-surface-variant">
+                {message}
+            </p>
         </motion.div>
     );
 }
