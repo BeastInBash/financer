@@ -1,0 +1,174 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - link "FINANCER Institutional OS" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]: FINANCER
+          - generic [ref=e8]: Institutional OS
+        - navigation [ref=e9]:
+          - link "Platform" [ref=e10] [cursor=pointer]:
+            - /url: "#"
+          - link "Analytics" [ref=e11] [cursor=pointer]:
+            - /url: "#"
+          - link "Security" [ref=e12] [cursor=pointer]:
+            - /url: "#"
+          - link "Pricing" [ref=e13] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e14]:
+          - link "Sign in" [ref=e15] [cursor=pointer]:
+            - /url: /sign-in
+          - link "Get started" [ref=e16] [cursor=pointer]:
+            - /url: /sign-in
+      - main [ref=e17]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e22]: Institutional Finance OS
+            - heading "Capital clarity, at terminal speed." [level=1] [ref=e24]
+            - paragraph [ref=e25]: FINANCER unifies analytics, AI advisory, and risk detection into a single high-density workspace — so your team decides with conviction, not guesswork.
+            - generic [ref=e26]:
+              - link "Get started" [ref=e27] [cursor=pointer]:
+                - /url: /sign-in
+                - text: Get started
+                - img [ref=e28]
+              - link "Explore the platform" [ref=e30] [cursor=pointer]:
+                - /url: /sign-in
+            - generic [ref=e31]: System status — Operational · Latency 0.4ms · Uptime 99.99%
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: Intelligence Feed — Live
+              - generic [ref=e37]: 14:32:07
+            - generic [ref=e39]:
+              - generic [ref=e40]: Portfolio change · 24h
+              - generic [ref=e41]: +4.2%
+            - generic [ref=e43]:
+              - generic [ref=e44]:
+                - generic [ref=e45]: Net liquidity
+                - generic [ref=e46]: $1,204,880
+              - generic [ref=e48]:
+                - generic [ref=e49]: Burn rate
+                - generic [ref=e50]: $96,200 / mo
+              - generic [ref=e52]:
+                - generic [ref=e53]: Runway
+                - generic [ref=e54]: 18.4 months
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - generic [ref=e60]: $0.9B
+            - generic [ref=e61]: Assets monitored
+          - generic [ref=e62]:
+            - generic [ref=e64]: 36.80%
+            - generic [ref=e65]: Uptime SLA
+          - generic [ref=e66]:
+            - generic [ref=e68]: 0.1ms
+            - generic [ref=e69]: Median latency
+          - generic [ref=e70]:
+            - generic [ref=e72]: 15+
+            - generic [ref=e73]: Data integrations
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: Built for high-stakes decisions
+            - heading "One workspace, the entire financial picture." [level=2] [ref=e78]
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - img [ref=e82]
+                - generic [ref=e85]: 01 / LIVE
+              - heading "Real-time analytics" [level=3] [ref=e86]
+              - paragraph [ref=e87]: Live portfolio, cash-flow, and exposure metrics rendered the instant data lands — no overnight batch.
+            - generic [ref=e88]:
+              - generic [ref=e89]:
+                - img [ref=e90]
+                - generic [ref=e93]: 02 / INTELLIGENCE
+              - heading "AI Advisor" [level=3] [ref=e94]
+              - paragraph [ref=e95]: Context-aware guidance that reads your books and surfaces the next best action with cited reasoning.
+            - generic [ref=e96]:
+              - generic [ref=e97]:
+                - img [ref=e98]
+                - generic [ref=e100]: 03 / DEFENSE
+              - heading "Risk detection" [level=3] [ref=e101]
+              - paragraph [ref=e102]: Anomaly and threshold monitoring that flags drift early — before variance compounds into loss.
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - img [ref=e105]
+                - generic [ref=e108]: 04 / RECORD
+              - heading "Institutional reporting" [level=3] [ref=e109]
+              - paragraph [ref=e110]: Audit-ready statements and exports, generated on a strict baseline grid for tabular precision.
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]: Ready when you are
+            - heading "Bring your capital into focus." [level=2] [ref=e116]
+          - link "Get started" [ref=e118] [cursor=pointer]:
+            - /url: /sign-in
+            - text: Get started
+            - img [ref=e119]
+      - generic [ref=e121]:
+        - generic [ref=e122]:
+          - generic [ref=e123]:
+            - text: FINANCER
+            - paragraph [ref=e124]: The operating system for institutional finance.
+          - generic [ref=e125]:
+            - generic [ref=e126]: Product
+            - list [ref=e127]:
+              - listitem [ref=e128]:
+                - link "Platform" [ref=e129] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e130]:
+                - link "Analytics" [ref=e131] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e132]:
+                - link "AI Advisor" [ref=e133] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e134]:
+                - link "Pricing" [ref=e135] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e136]:
+            - generic [ref=e137]: Company
+            - list [ref=e138]:
+              - listitem [ref=e139]:
+                - link "About" [ref=e140] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e141]:
+                - link "Careers" [ref=e142] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e143]:
+                - link "Customers" [ref=e144] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e145]:
+                - link "Contact" [ref=e146] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e147]:
+            - generic [ref=e148]: Resources
+            - list [ref=e149]:
+              - listitem [ref=e150]:
+                - link "Docs" [ref=e151] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e152]:
+                - link "API" [ref=e153] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e154]:
+                - link "Status" [ref=e155] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e156]:
+                - link "Changelog" [ref=e157] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e158]:
+            - generic [ref=e159]: Legal
+            - list [ref=e160]:
+              - listitem [ref=e161]:
+                - link "Privacy" [ref=e162] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e163]:
+                - link "Terms" [ref=e164] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e165]:
+                - link "Security" [ref=e166] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e167]:
+                - link "Compliance" [ref=e168] [cursor=pointer]:
+                  - /url: "#"
+        - generic [ref=e170]:
+          - generic [ref=e171]: © 2026 Financer — All rights reserved
+          - generic [ref=e172]: All systems operational
+  - button "Open Next.js Dev Tools" [ref=e179] [cursor=pointer]:
+    - img [ref=e180]
+  - alert [ref=e183]
