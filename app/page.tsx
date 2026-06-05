@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Show, UserButton } from "@clerk/nextjs";
+import { Show, UserButton, useSession } from "@clerk/nextjs";
 import {
     motion,
     useInView,
@@ -126,11 +126,11 @@ const STATS: {
     suffix?: string;
     label: string;
 }[] = [
-    { value: 2.4, decimals: 1, prefix: "$", suffix: "B", label: "Assets monitored" },
-    { value: 99.99, decimals: 2, suffix: "%", label: "Uptime SLA" },
-    { value: 0.4, decimals: 1, suffix: "ms", label: "Median latency" },
-    { value: 40, suffix: "+", label: "Data integrations" },
-];
+        { value: 2.4, decimals: 1, prefix: "$", suffix: "B", label: "Assets monitored" },
+        { value: 99.99, decimals: 2, suffix: "%", label: "Uptime SLA" },
+        { value: 0.4, decimals: 1, suffix: "ms", label: "Median latency" },
+        { value: 40, suffix: "+", label: "Data integrations" },
+    ];
 
 const FEATURES: { icon: LucideIcon; title: string; body: string; tag: string }[] = [
     {
@@ -165,7 +165,7 @@ const FEATURES: { icon: LucideIcon; title: string; body: string; tag: string }[]
 
 export default function Landing() {
     const fadeUp = useFadeUp();
-
+    const { isLoaded, session } = useSession()
     return (
         <div className="min-h-screen bg-surface font-sans text-on-surface">
             <Header />
@@ -190,7 +190,7 @@ export default function Landing() {
                         {/* copy */}
                         <motion.div variants={container} initial="hidden" animate="show">
                             <motion.div variants={fadeUp}>
-                                <Eyebrow>Institutional Finance OS</Eyebrow>
+                                <Eyebrow>Finance Manager</Eyebrow>
                             </motion.div>
 
                             <motion.h1
@@ -215,7 +215,7 @@ export default function Landing() {
                                 className="mt-9 flex flex-wrap items-center gap-3"
                             >
                                 <Link
-                                    href="/sign-in"
+                                    href={session?.id ? "/dashboard" :"/sign-in"}
                                     className="group inline-flex h-12 items-center gap-2 bg-ink px-6 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors hover:bg-accent"
                                 >
                                     Get started
@@ -341,7 +341,7 @@ function Header() {
                         FINANCER
                     </span>
                     <span className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-outline sm:inline">
-                        Institutional OS
+                       Finance Manager 
                     </span>
                 </Link>
 

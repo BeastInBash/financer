@@ -1,7 +1,6 @@
 import { upload, ImageKitAbortError, ImageKitServerError } from "@imagekit/next";
 import type { NewEntryPayload } from "@/app/entry/new/_components/new-entry-form";
 
-/** A single persisted transaction row, as serialized by the API. */
 export interface TransactionRecord {
     id: string;
     type: NewEntryPayload["type"];

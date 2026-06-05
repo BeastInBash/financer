@@ -15,7 +15,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Financer — Institutional OS",
+    title: "Financer — Finance Manager",
     description: "High-density financial terminal for accounts, budgets, and cash-flow intelligence.",
 };
 

@@ -50,13 +50,15 @@ export function Sidebar() {
                 <span className="font-sans text-xl font-bold tracking-tight text-on-surface lg:hidden">
                     F
                 </span>
-                <div className="hidden lg:block">
-                    <h1 className="font-sans text-xl font-bold leading-none tracking-tight text-on-surface">
-                        FINANCER
-                    </h1>
-                    <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-on-surface-variant">
-                        Institutional OS
-                    </p>
+                <div className="hidden lg:block" >
+                    <Link href={'/'}>
+                        <h1 className="font-sans text-xl font-bold leading-none tracking-tight text-on-surface">
+                            FINANCER
+                        </h1>
+                        <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-on-surface-variant">
+                            Finance Manager
+                        </p>
+                    </Link>
                 </div>
             </div>
 
