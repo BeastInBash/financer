@@ -58,7 +58,7 @@ export function Accounts({ accounts }: { accounts: AccountRow[] }) {
                                         negative ? "text-[#ba1a1a]" : "text-on-surface"
                                     }`}
                                 >
-                                    {formatCurrency(a.balance, a.currency, { compact: true })}
+                                    {formatCurrency(a.balance, a.currency)}
                                 </span>
                             </StaggerItem>
                         );

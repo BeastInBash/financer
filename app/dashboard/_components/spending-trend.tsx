@@ -7,11 +7,17 @@ import { formatCurrency } from "@/app/lib/format";
 import { Card, CardHeader } from "./card";
 
 type SeriesKey = "expense" | "income" | "net";
+type RangeKey = "12M" | "MTD";
 
 const SERIES: { key: SeriesKey; label: string }[] = [
     { key: "expense", label: "Expense" },
     { key: "income", label: "Income" },
     { key: "net", label: "Net" },
+];
+
+const RANGES: { key: RangeKey; label: string }[] = [
+    { key: "12M", label: "12M" },
+    { key: "MTD", label: "MTD" },
 ];
 
 const W = 600;
@@ -20,21 +26,26 @@ const PAD = 10;
 
 export function SpendingTrend({
     trend,
+    daily,
     currency,
 }: {
     trend: TrendPoint[];
+    daily: TrendPoint[];
     currency: string;
 }) {
     const reduce = useReducedMotion();
     const [active, setActive] = useState<SeriesKey>("expense");
+    const [range, setRange] = useState<RangeKey>("12M");
     const [hover, setHover] = useState<number | null>(null);
+
+    const series = range === "12M" ? trend : daily;
 
     const values = useMemo(
         () =>
-            trend.map((t) =>
+            series.map((t) =>
                 active === "net" ? t.income - t.expense : active === "income" ? t.income : t.expense,
             ),
-        [trend, active],
+        [series, active],
     );
 
     const geom = useMemo(() => {
@@ -54,13 +65,13 @@ export function SpendingTrend({
     }, [values]);
 
     const total = values.reduce((a, b) => a + b, 0);
-    const active$ = formatCurrency(total, currency, { compact: true });
+    const active$ = formatCurrency(total, currency);
 
     function onMove(e: React.PointerEvent<SVGSVGElement>) {
         const rect = e.currentTarget.getBoundingClientRect();
         const ratio = (e.clientX - rect.left) / rect.width;
-        const idx = Math.round(ratio * (trend.length - 1));
-        setHover(Math.min(trend.length - 1, Math.max(0, idx)));
+        const idx = Math.round(ratio * (series.length - 1));
+        setHover(Math.min(series.length - 1, Math.max(0, idx)));
     }
 
     const hp = hover != null ? geom.points[hover] : null;
@@ -68,8 +79,36 @@ export function SpendingTrend({
     return (
         <Card>
             <CardHeader
-                title="Cash-Flow Trend · 12M"
+                title={`Cash-Flow Trend · ${range}`}
                 action={
+                    <div className="flex items-center gap-2">
+                    <div className="flex border border-outline-variant">
+                        {RANGES.map((r) => {
+                            const on = r.key === range;
+                            return (
+                                <button
+                                    key={r.key}
+                                    type="button"
+                                    onClick={() => {
+                                        setRange(r.key);
+                                        setHover(null);
+                                    }}
+                                    className={`relative px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] transition-colors sm:px-3 ${
+                                        on ? "text-on-accent" : "text-on-surface-variant hover:text-on-surface"
+                                    }`}
+                                >
+                                    {on && (
+                                        <motion.span
+                                            layoutId="trend-range-tab"
+                                            className="absolute inset-0 -z-0 bg-accent"
+                                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                        />
+                                    )}
+                                    <span className="relative z-10">{r.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                     <div className="flex border border-outline-variant">
                         {SERIES.map((s) => {
                             const on = s.key === active;
@@ -94,15 +133,22 @@ export function SpendingTrend({
                             );
                         })}
                     </div>
+                    </div>
                 }
             />
             <div className="p-4 sm:p-5">
                 <div className="flex items-baseline justify-between">
                     <div className="font-sans text-2xl font-bold tracking-[-0.02em] text-on-surface">
-                        {hp ? formatCurrency(hp.v, currency, { compact: true }) : active$}
+                        {hp ? formatCurrency(hp.v, currency) : active$}
                     </div>
                     <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-outline">
-                        {hover != null ? trend[hover].label : "Trailing total"}
+                        {hover != null
+                            ? range === "MTD"
+                                ? `Day ${series[hover].label}`
+                                : series[hover].label
+                            : range === "MTD"
+                              ? "Month-to-date"
+                              : "Trailing total"}
                     </span>
                 </div>
 
@@ -182,14 +228,21 @@ export function SpendingTrend({
                     </svg>
 
                     <div className="mt-2 flex justify-between font-mono text-[9px] uppercase tracking-[0.04em] text-outline">
-                        {trend.map((t, i) => (
-                            <span
-                                key={`${t.label}-${i}`}
-                                className={i % 2 === 0 ? "" : "hidden sm:inline"}
-                            >
-                                {t.label}
-                            </span>
-                        ))}
+                        {series.map((t, i) => {
+                            // Thin out labels so a dense daily series stays legible.
+                            // 12M keeps every label (odd ones hidden on mobile).
+                            const step = range === "12M" ? 1 : Math.max(1, Math.ceil(series.length / 10));
+                            const show = i % step === 0 || i === series.length - 1;
+                            const mobileOnly = range === "12M" && i % 2 !== 0;
+                            return (
+                                <span
+                                    key={`${t.label}-${i}`}
+                                    className={!show ? "hidden" : mobileOnly ? "hidden sm:inline" : ""}
+                                >
+                                    {t.label}
+                                </span>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

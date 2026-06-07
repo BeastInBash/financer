@@ -96,7 +96,10 @@ export interface NotificationRow {
 export interface DashboardData {
     user: { name: string; currency: string };
     kpi: KpiData;
+    /** 12-month income/expense series (one point per month). */
     trend: TrendPoint[];
+    /** Current-month income/expense series, one point per day (1 → today). */
+    dailyTrend: TrendPoint[];
     categories: CategorySlice[];
     transactions: TransactionRow[];
     budgets: BudgetRow[];

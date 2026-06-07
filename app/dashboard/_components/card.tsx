@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
 
-/**
- * Brutalist card shell: 1px border, 0px radius, no shadow. Header is divided
- * from the body by a single hairline rule. Importable from server or client.
- */
 export function Card({
     children,
     className = "",

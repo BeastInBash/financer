@@ -50,8 +50,8 @@ export function SavingsGoals({
                                     <ProgressBar value={g.pct} tone={done ? "accent" : "ink"} className="h-1" />
                                 </div>
                                 <div className="mt-1.5 flex justify-between font-mono text-[10px] uppercase tracking-[0.04em] text-outline">
-                                    <span>{formatCurrency(g.currentAmount, currency, { compact: true })}</span>
-                                    <span>{formatCurrency(g.targetAmount, currency, { compact: true })}</span>
+                                    <span>{formatCurrency(g.currentAmount, currency)}</span>
+                                    <span>{formatCurrency(g.targetAmount, currency)}</span>
                                 </div>
                             </StaggerItem>
                         );

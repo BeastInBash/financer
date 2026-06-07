@@ -32,7 +32,7 @@ export default async function DashboardPage() {
                 <section className="grid gap-4 xl:grid-cols-3">
                     <div className="space-y-4 xl:col-span-2">
                         <Reveal>
-                            <SpendingTrend trend={data.trend} currency={currency} />
+                            <SpendingTrend trend={data.trend} daily={data.dailyTrend} currency={currency} />
                         </Reveal>
 
                         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">

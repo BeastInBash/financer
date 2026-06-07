@@ -46,6 +46,16 @@ export function sampleDashboardData(): DashboardData {
             income: INCOME_SERIES[i],
             expense: EXPENSE_SERIES[i],
         })),
+        // Day-wise series for the current month (day 1 → today). Deterministic:
+        // steady daily spend with a weekly income deposit.
+        dailyTrend: Array.from({ length: new Date().getDate() }, (_, i) => {
+            const day = i + 1;
+            return {
+                label: String(day),
+                income: day % 7 === 0 ? 1800 + (day % 5) * 220 : 0,
+                expense: 180 + ((day * 137) % 420),
+            };
+        }),
         categories: [
             { id: "c1", name: "Operating Leases", color: "#ea580c", icon: null, amount: 4280, pct: 0.41 },
             { id: "c2", name: "SaaS & Licenses", color: "#171717", icon: null, amount: 2340, pct: 0.225 },

@@ -34,8 +34,8 @@ export function Budgets({
                                             over ? "text-[#ba1a1a]" : "text-on-surface"
                                         }`}
                                     >
-                                        {formatCurrency(b.spent, currency, { compact: true })} /{" "}
-                                        {formatCurrency(b.amount, currency, { compact: true })}
+                                        {formatCurrency(b.spent, currency)} /{" "}
+                                        {formatCurrency(b.amount, currency)}
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center gap-2">

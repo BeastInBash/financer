@@ -8,16 +8,20 @@ const MINUS = "−"; // proper minus sign for the financial-terminal look
 export function formatCurrency(
     amount: number,
     currency = "USD",
-    opts?: { compact?: boolean; sign?: boolean },
+    opts?: { sign?: boolean },
 ): string {
-    const compact = opts?.compact ?? false;
+    // Always show the complete amount with thousands grouping — never compact
+    // ("K"/"M") notation. Whole values render without decimals (₹29,397); only
+    // amounts with a fractional part show paise/cents (₹42.20).
+    const fractionDigits = Number.isInteger(amount) ? 0 : 2;
     const nf = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency,
-        notation: compact ? "compact" : "standard",
-        maximumFractionDigits: compact ? 1 : 2,
-        minimumFractionDigits: compact ? 0 : 2,
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
     });
+    // Format the magnitude and apply the sign ourselves so we get a single,
+    // typographic minus (Intl would otherwise add its own hyphen-minus).
     const body = nf.format(Math.abs(amount));
     if (opts?.sign) return `${amount < 0 ? MINUS : "+"}${body}`;
     return amount < 0 ? `${MINUS}${body}` : body;

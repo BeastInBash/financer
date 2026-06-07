@@ -96,18 +96,18 @@ async function loadDashboardData(user: User): Promise<DashboardData> {
     const savingsRate = income > 0 ? netSavings / income : 0;
 
     // Category breakdown — current-month expenses grouped by category.
-    const catMap = new Map<string, CategorySlice>();
+    const categoryMap = new Map<string, CategorySlice>();
     let categoryTotal = 0;
     for (const t of monthTxs) {
         if (t.type !== TransactionType.EXPENSE) continue;
         const amount = toNum(t.amount);
         categoryTotal += amount;
         const id = t.category?.id ?? "uncategorized";
-        const existing = catMap.get(id);
+        const existing = categoryMap.get(id);
         if (existing) {
             existing.amount += amount;
         } else {
-            catMap.set(id, {
+            categoryMap.set(id, {
                 id,
                 name: t.category?.name ?? "Uncategorized",
                 color: t.category?.color ?? null,
@@ -117,7 +117,7 @@ async function loadDashboardData(user: User): Promise<DashboardData> {
             });
         }
     }
-    const categories = [...catMap.values()]
+    const categories = [...categoryMap.values()]
         .map((c) => ({ ...c, pct: categoryTotal > 0 ? c.amount / categoryTotal : 0 }))
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 5);
@@ -146,6 +146,25 @@ async function loadDashboardData(user: User): Promise<DashboardData> {
     [...buckets.values()].forEach((b, i) => {
         trend[i].income = b.income;
         trend[i].expense = b.expense;
+    });
+
+    // Day-wise trend for the current month (day 1 → today), bucketed from the
+    // already-fetched current-month transactions.
+    const dailyTrend: TrendPoint[] = [];
+    const dayBuckets = new Map<number, { income: number; expense: number }>();
+    for (let day = 1; day <= now.getDate(); day++) {
+        dayBuckets.set(day, { income: 0, expense: 0 });
+        dailyTrend.push({ label: String(day), income: 0, expense: 0 });
+    }
+    for (const t of monthTxs) {
+        const bucket = dayBuckets.get(new Date(t.transactionDate).getDate());
+        if (!bucket) continue;
+        if (t.type === TransactionType.INCOME) bucket.income += toNum(t.amount);
+        else if (t.type === TransactionType.EXPENSE) bucket.expense += toNum(t.amount);
+    }
+    [...dayBuckets.values()].forEach((b, i) => {
+        dailyTrend[i].income = b.income;
+        dailyTrend[i].expense = b.expense;
     });
 
     // Budget spend — sum current-month expenses for each budget's category.
@@ -199,7 +218,6 @@ async function loadDashboardData(user: User): Promise<DashboardData> {
     const healthScore = Math.round(
         Math.min(100, Math.max(0, savingsRate * 60 + adherence * 40)),
     );
-
     return {
         user: { name: user.username || "Operator", currency },
         kpi: {
@@ -213,6 +231,7 @@ async function loadDashboardData(user: User): Promise<DashboardData> {
             healthScore,
         },
         trend,
+        dailyTrend,
         categories,
         transactions,
         budgets: budgetRows,

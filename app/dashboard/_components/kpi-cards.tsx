@@ -58,7 +58,9 @@ function KpiCard({
 }
 
 export function KpiCards({ kpi, currency }: { kpi: KpiData; currency: string }) {
-    const money = (v: number) => formatCurrency(v, currency, { compact: true });
+    // Round so the count-up animation rolls through whole amounts (no flickering
+    // decimals) and the headline matches the full-amount display elsewhere.
+    const money = (v: number) => formatCurrency(Math.round(v), currency);
 
     return (
         <>

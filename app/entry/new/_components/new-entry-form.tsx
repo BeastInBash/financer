@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { SyntheticEvent, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -87,7 +87,6 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
         mutationFn: createNewTransaction,
         onSuccess: (_result, payload) => {
             setSubmitted(payload);
-            // Reset per-entry fields, keep type/account/date for fast repeat entry.
             setTitle("");
             setAmount("");
             setNotes("");
@@ -95,7 +94,6 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
             setReceipt(null);
             setCategoryId("");
             setErrors({});
-            // Refresh server components (dashboard balances/lists) with the new row.
             router.refresh();
         },
     });
@@ -122,7 +120,7 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
         return next;
     }
 
-    function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
         const found = validate();
         setErrors(found);
@@ -144,16 +142,15 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                 .filter(Boolean),
         };
 
-        // Uploads the receipt to ImageKit (if any), then POSTs the transaction.
-        // Field reset + dashboard refresh happen in the mutation's onSuccess.
+        
         mutation.mutate(payload);
     }
 
     const amountTone = isTransfer
         ? "text-on-surface"
         : type === TransactionType.INCOME
-          ? "text-accent"
-          : "text-on-surface";
+            ? "text-accent"
+            : "text-on-surface";
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -211,11 +208,10 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                                                 type="button"
                                                 onClick={() => setType(opt.key)}
                                                 aria-pressed={on}
-                                                className={`relative flex h-11 items-center justify-center gap-2 font-mono text-[12px] uppercase tracking-[0.06em] transition-colors ${
-                                                    on
+                                                className={`relative flex h-11 items-center justify-center gap-2 font-mono text-[12px] uppercase tracking-[0.06em] transition-colors ${on
                                                         ? "text-on-accent"
                                                         : "text-on-surface-variant hover:text-on-surface"
-                                                }`}
+                                                    }`}
                                             >
                                                 {on && (
                                                     <motion.span
@@ -237,9 +233,8 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                             {/* Amount */}
                             <Field label="Amount" htmlFor="amount" error={errors.amount}>
                                 <div
-                                    className={`flex h-14 items-stretch border bg-background focus-within:ring-1 focus-within:ring-accent ${
-                                        errors.amount ? "border-[#ba1a1a]" : "border-outline-variant"
-                                    }`}
+                                    className={`flex h-14 items-stretch border bg-background focus-within:ring-1 focus-within:ring-accent ${errors.amount ? "border-[#ba1a1a]" : "border-outline-variant"
+                                        }`}
                                 >
                                     <span className="grid w-16 place-items-center border-r border-outline-variant font-mono text-[12px] uppercase tracking-[0.06em] text-outline">
                                         {currency}
@@ -361,11 +356,10 @@ export function NewEntryForm({ accounts, categories, currency }: Props) {
                                             setDate(e.target.value);
                                             clearError("transactionDate");
                                         }}
-                                        className={`h-11 w-full border bg-background px-3 font-mono text-[13px] text-on-surface focus:outline-none focus:ring-1 focus:ring-accent ${
-                                            errors.transactionDate
+                                        className={`h-11 w-full border bg-background px-3 font-mono text-[13px] text-on-surface focus:outline-none focus:ring-1 focus:ring-accent ${errors.transactionDate
                                                 ? "border-[#ba1a1a]"
                                                 : "border-outline-variant"
-                                        }`}
+                                            }`}
                                     />
                                 </Field>
                                 <Field label="Tags" htmlFor="tags" optional hint="comma separated">
@@ -523,9 +517,8 @@ function TextInput({
             value={value}
             placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
-            className={`h-11 w-full border bg-background px-3 font-sans text-[14px] text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-accent ${
-                invalid ? "border-[#ba1a1a]" : "border-outline-variant"
-            }`}
+            className={`h-11 w-full border bg-background px-3 font-sans text-[14px] text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-accent ${invalid ? "border-[#ba1a1a]" : "border-outline-variant"
+                }`}
         />
     );
 }
@@ -551,9 +544,8 @@ function SelectInput({
                 id={id}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className={`h-11 w-full appearance-none border bg-background px-3 pr-9 font-sans text-[14px] focus:outline-none focus:ring-1 focus:ring-accent ${
-                    invalid ? "border-[#ba1a1a]" : "border-outline-variant"
-                } ${value ? "text-on-surface" : "text-outline"}`}
+                className={`h-11 w-full appearance-none border bg-background px-3 pr-9 font-sans text-[14px] focus:outline-none focus:ring-1 focus:ring-accent ${invalid ? "border-[#ba1a1a]" : "border-outline-variant"
+                    } ${value ? "text-on-surface" : "text-outline"}`}
             >
                 <option value="">{placeholder}</option>
                 {options.map((o) => (
@@ -603,10 +595,10 @@ function SuccessBanner({
         ...payload,
         receipt: payload.receipt
             ? {
-                  name: payload.receipt.name,
-                  type: payload.receipt.type,
-                  size: payload.receipt.size,
-              }
+                name: payload.receipt.name,
+                type: payload.receipt.type,
+                size: payload.receipt.size,
+            }
             : null,
     };
     return (
