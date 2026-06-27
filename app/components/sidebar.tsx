@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import {
     LayoutGrid,
     Wallet,
-    LineChart,
-    Bot,
-    FileText,
-    Settings,
+    // LineChart,
+    // Bot,
+    // FileText,
+    // Settings,
     Plus,
     CircleUser,
     CircleHelp,
@@ -24,10 +24,10 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutGrid },
     { label: "Expenses", href: "/expenses", icon: Wallet },
-    { label: "Analytics", href: "/analytics", icon: LineChart },
-    { label: "AI Advisor", href: "/ai-advisor", icon: Bot },
-    { label: "Reports", href: "/reports", icon: FileText },
-    { label: "Settings", href: "/settings", icon: Settings },
+    // { label: "Analytics", href: "/analytics", icon: LineChart },
+    // { label: "AI Advisor", href: "/ai-advisor", icon: Bot },
+    // { label: "Reports", href: "/reports", icon: FileText },
+    // { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 const FOOTER_ITEMS: NavItem[] = [
